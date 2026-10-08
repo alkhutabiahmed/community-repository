@@ -74,11 +74,12 @@ export function visibilityRank(p: Profile, evening = false) {
 }
 
 export async function fetchMembership() {
-  const { data, error } = await supabase.rpc('get_my_membership');
+  const [{ data, error }, free] = await Promise.all([supabase.rpc('get_my_membership'), supabase.rpc('has_free_proposal')]);
   if (error) throw error;
-  const rows = data as Membership[] | null;
+  if (free.error) throw free.error;
+  const rows = data as Omit<Membership, 'free_proposal'>[] | null;
   if (!rows?.length) throw new Error('No membership data');
-  return rows[0];
+  return { ...rows[0], free_proposal: free.data === true };
 }
 
 export async function fetchSubscriptionDetails() {

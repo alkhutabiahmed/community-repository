@@ -113,6 +113,7 @@ export interface Membership {
   sent_today: number;
   daily_limit: number | null;
   admin_access: boolean;
+  free_proposal: boolean;
 }
 
 export interface ComposerPreset {

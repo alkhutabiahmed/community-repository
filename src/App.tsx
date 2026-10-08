@@ -148,8 +148,10 @@ function Shell({ me }: { me: Profile }) {
   }
 
   function propose(preset: ComposerPreset) {
-    if (membership && !paid) {
-      toast('Sending proposals is for members. Pick a plan to start.');
+    if (membership && !paid && (!membership.free_proposal || preset.open)) {
+      toast(membership.free_proposal
+        ? 'Open proposals are for members. Your free proposal can go to one person.'
+        : 'You have used your free proposal. Pick a plan to keep sending.');
       openPlans();
       return;
     }

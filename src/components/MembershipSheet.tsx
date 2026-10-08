@@ -95,7 +95,9 @@ export default function MembershipSheet({ membership, error, onRetry, onClose, o
                   {adminAccess
                     ? 'Admin access - everything is unlocked, no payment needed'
                     : current === 'free'
-                    ? 'Upgrade to send, read and answer proposals'
+                    ? membership.free_proposal
+                      ? 'You have 1 free proposal to send. Upgrade to read, answer and send more'
+                      : 'Free proposal used. Upgrade to send, read and answer proposals'
                     : details?.current_period_end
                       ? `${cancelling ? 'Ends' : 'Renews'} ${formatWhen(new Date(details.current_period_end * 1000).toISOString())}`
                       : membership.daily_limit ? `${membership.daily_limit} proposals a day` : 'Unlimited proposals'}

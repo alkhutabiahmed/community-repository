@@ -59,7 +59,8 @@ export default function ProposalComposer({ preset, me, people, experiences, memb
     [people, me, category, experience],
   );
   const score = recipient ? proposalScore(me, recipient, category, experience?.tags) : null;
-  const limitReached = !!membership && membership.daily_limit !== null && membership.sent_today >= membership.daily_limit;
+  const freeTrial = !!membership && membership.plan === 'free' && membership.free_proposal;
+  const limitReached = !freeTrial && !!membership && membership.daily_limit !== null && membership.sent_today >= membership.daily_limit;
   const tierMissingCredit = tier !== 'normal' && (!membership || tierCredits(membership, tier) < 1);
 
   async function buyTier() {
@@ -117,7 +118,7 @@ export default function ProposalComposer({ preset, me, people, experiences, memb
     } catch (cause) {
       console.error('proposal send failed', cause);
       const msg = cause instanceof Object && 'message' in cause ? String(cause.message) : '';
-      if (msg.includes('PLAN_REQUIRED')) setError('Sending proposals is for members. Pick a plan to continue.');
+      if (msg.includes('PLAN_REQUIRED')) setError(freeTrial ? 'Your free proposal can only go to one person. Pick a plan for open proposals.' : 'You have used your free proposal. Pick a plan to keep sending.');
       else if (msg.includes('DAILY_LIMIT')) setError('You have used all your proposals for today. Upgrade to send more.');
       else if (msg.includes('NO_CREDIT')) setError(`You have no ${TIERS[tier].name} Proposal credits left.`);
       else setError('Could not send your proposal. Please try again.');
@@ -129,16 +130,24 @@ export default function ProposalComposer({ preset, me, people, experiences, memb
   return (
     <Modal open onClose={onClose} title={preset.tonight ? 'Propose for tonight' : 'Make a Proposal'} wide>
       <div className="space-y-8">
+        {freeTrial && (
+          <div className="flex items-start gap-3 rounded-2xl border border-teal-200 bg-teal-50 p-4">
+            <Gift className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
+            <p className="text-sm text-teal-900">
+              <span className="font-semibold">Your first proposal is on us.</span> Send it to anyone you like. After that, pick a plan to keep proposing.
+            </p>
+          </div>
+        )}
         <section>
           <div className="mb-3 flex items-center justify-between">
             <span className="label mb-0">Who</span>
-            <button
+            {!freeTrial && <button
               type="button"
               onClick={() => { setIsOpenProposal(!isOpenProposal); if (!isOpenProposal) setRecipient(null); }}
               className={`chip border transition ${isOpenProposal ? 'border-ink-900 bg-ink-900 text-white' : 'border-ink-200 text-ink-700 hover:border-ink-400'}`}
             >
               <Globe2 className="h-3.5 w-3.5" /> Open proposal
-            </button>
+            </button>}
           </div>
           {isOpenProposal ? (
             <div className="rounded-2xl border border-dashed border-ink-300 bg-ink-50 p-4 text-sm text-ink-600">
@@ -357,7 +366,7 @@ export default function ProposalComposer({ preset, me, people, experiences, memb
           <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-amber-900">
               {membership?.daily_limit === 0
-                ? 'Sending proposals is for members. Pick a plan to invite someone out.'
+                ? 'You have used your free proposal. Pick a plan to keep inviting people out.'
                 : `You've sent your ${membership?.daily_limit} proposals for today. Upgrade for more, or try again tomorrow.`}
             </p>
             <button type="button" onClick={onUpgrade} className="btn-dark shrink-0"><Crown className="h-4 w-4" />See plans</button>
@@ -365,7 +374,7 @@ export default function ProposalComposer({ preset, me, people, experiences, memb
         )}
         {error && <p className="text-sm text-error-600">{error}</p>}
         <button onClick={send} disabled={busy || limitReached || tierMissingCredit} className="btn-primary w-full py-3.5 text-base">
-          {busy ? <Spinner className="h-5 w-5 text-white" /> : <><Send className="h-4 w-4" /> {isOpenProposal ? 'Publish open proposal' : tier === 'normal' ? 'Send proposal' : `Send ${TIERS[tier].name} Proposal`}</>}
+          {busy ? <Spinner className="h-5 w-5 text-white" /> : <><Send className="h-4 w-4" /> {isOpenProposal ? 'Publish open proposal' : tier === 'normal' ? (freeTrial ? 'Send my free proposal' : 'Send proposal') : `Send ${TIERS[tier].name} Proposal`}</>}
         </button>
       </div>
     </Modal>

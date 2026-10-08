@@ -144,6 +144,11 @@ export async function postStory(body: string, category: Category) {
   if (error) throw error;
 }
 
+export async function updateStory(id: string, body: string, category: Category) {
+  const { error } = await supabase.from('stories').update({ body, category }).eq('id', id);
+  if (error) throw error;
+}
+
 export async function deleteStory(id: string) {
   const { error } = await supabase.from('stories').delete().eq('id', id);
   if (error) throw error;

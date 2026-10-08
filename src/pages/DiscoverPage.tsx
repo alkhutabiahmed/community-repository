@@ -64,7 +64,7 @@ export default function DiscoverPage({ me, people, experiences, walletIds, onTog
       </section>
 
       <section>
-        <StoriesBar stories={stories} me={me} people={people} onChanged={load} onPropose={onPropose} />
+        <StoriesBar stories={stories} me={me} people={people} onChanged={load} onPropose={onPropose} onOpenPerson={onOpenPerson} />
       </section>
 
       {suggestions.length > 0 && (

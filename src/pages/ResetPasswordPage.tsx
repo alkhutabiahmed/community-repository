@@ -32,7 +32,11 @@ export default function ResetPasswordPage() {
       setError(
         err.code === 'same_password'
           ? 'Please choose a password different from your old one.'
-          : 'Could not update your password. The link may have expired, so try requesting a new one.',
+          : err.code === 'weak_password'
+            ? `This password is too weak. ${err.message}`
+            : err.code === 'session_expired' || err.code === 'session_not_found' || err.status === 401
+              ? 'Your reset link has expired. Go back to sign in and request a new one.'
+              : `Could not update your password: ${err.message}`,
       );
       return;
     }

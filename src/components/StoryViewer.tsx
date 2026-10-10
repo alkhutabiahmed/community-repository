@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Pause, Pencil, Play, Send, Trash2, UserRound, X } from 'lucide-react';
 import { CATEGORIES } from '../lib/catalog';
 import { timeAgo } from '../lib/time';
@@ -87,7 +88,7 @@ export default function StoryViewer({ stories, startIndex, me, byId, onClose, on
     if (Date.now() - pressStart.current < 250) go(delta);
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/95 backdrop-blur-sm sm:p-6">
       <button onClick={() => go(-1)} disabled={index === 0} aria-label="Previous story"
         className="absolute left-6 hidden h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 disabled:opacity-0 sm:flex">
@@ -176,6 +177,7 @@ export default function StoryViewer({ stories, startIndex, me, byId, onClose, on
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

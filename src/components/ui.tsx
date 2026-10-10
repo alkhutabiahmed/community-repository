@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { BadgeCheck, Crown, Flame, Loader2, X } from 'lucide-react';
 import { LEVELS } from '../lib/catalog';
 import { activePlan, isAvailableTonightPremium } from '../lib/membership';
@@ -17,7 +18,7 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
   }, [open, onClose]);
 
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
       <div className="absolute inset-0 bg-ink-950/50 backdrop-blur-sm" onClick={onClose} />
       <div
@@ -31,7 +32,8 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
         </div>
         <div className="p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
